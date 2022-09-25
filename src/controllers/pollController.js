@@ -1,3 +1,4 @@
+import { ObjectId } from "bson";
 import dayjs from "dayjs";
 import mongo from "../db/db.js"
 
@@ -29,9 +30,7 @@ async function createPoll(req, res) {
 async function showPolls( req, res) {
    const polls = await db.collection("polls").find({}).toArray();
   try {
-   
-
-    if (polls.length === 0) { //lista vazia, nenhuma enquete foi cadastrada 
+       if (polls.length === 0) { //lista vazia, nenhuma enquete foi cadastrada 
       return res.status(204).send("Nenhuma enquete cadastrada");
     }
     return res.status(200).send(polls);
@@ -41,5 +40,19 @@ async function showPolls( req, res) {
   }
 }
 
+async function showPollChoices (req, res){
+const pollId = req.params.id;
+//console.log(pollId)
+    try {
+      const choicesByPollId = await db.collection("choices").find({pollId: ObjectId(pollId)}).toArray(); 
+      console.log(choicesByPollId)
+      if(choicesByPollId.length === 0 ){
+        return res.status(404).send("Enquete não encontrada");
+      }
+      return res.send(choicesByPollId);
+    } catch (error) {
+      return res.sendStatus(500);
+    }
+}
 
-export { createPoll, showPolls };
+export { createPoll, showPolls, showPollChoices };
