@@ -1,7 +1,8 @@
 import dayjs from "dayjs";
 import mongo from "../db/db.js"
-//import { ObjectId } from "mongodb";
+
 const db = await mongo();
+
 async function createPoll(req, res) {
   const { title, expireAt } = req.body;
 
@@ -12,12 +13,12 @@ async function createPoll(req, res) {
 
       const result = await db.collection("polls").insertOne(poll);
      
-      return res.status(201).send("Enquete criada!");
+      return res.status(201).send("Enquete criada com sucesso!");
     }
     
     const expireDate = dayjs().add(expireAt, 'day');
     await db.collection("polls").insertOne({ title, expireAt: expireDate.format("YYYY-MM-D hh:mm") });
-    return res.status(201).send("Enquete criada!");
+    return res.status(201).send("Enquete criada com sucesso");
   }
    catch (error) {
     console.log(error);
@@ -25,4 +26,20 @@ async function createPoll(req, res) {
   }
 }
 
-export { createPoll };
+async function showPolls( req, res) {
+   const polls = await db.collection("polls").find({}).toArray();
+  try {
+   
+
+    if (polls.length === 0) { //lista vazia, nenhuma enquete foi cadastrada 
+      return res.status(204).send("Nenhuma enquete cadastrada");
+    }
+    return res.status(200).send(polls);
+  } catch (error) {
+    console.log(error);
+    return res.status(500);
+  }
+}
+
+
+export { createPoll, showPolls };
