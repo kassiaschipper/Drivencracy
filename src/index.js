@@ -17,7 +17,5 @@ server.get("/status", (req, res) => {
     return res.send("Ok");
 }); 
 
-// #
-
 server.listen(process.env.PORT, () => 
 console.log(`Listening on port ${process.env.PORT}`));

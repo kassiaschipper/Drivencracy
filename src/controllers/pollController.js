@@ -18,7 +18,7 @@ async function createPoll(req, res) {
     }
     
     const expireDate = dayjs().add(expireAt, 'day');
-    await db.collection("polls").insertOne({ title, expireAt: expireDate.format("YYYY-MM-D hh:mm") });
+    await db.collection("polls").insertOne({ title, expireAt, });
     return res.status(201).send("Enquete criada com sucesso");
   }
    catch (error) {

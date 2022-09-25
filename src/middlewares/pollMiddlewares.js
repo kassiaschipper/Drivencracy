@@ -1,8 +1,11 @@
 import joi from "joi";
+import JoiDateFactory from "@joi/date";
+
+const joiDate = joi.extend(JoiDateFactory);
 
 const pollSchema = joi.object({
   title: joi.string().required(),
-  expireAt: joi.allow("")
+  expireAt: joiDate.date().format("YYYY-MM-DD hh:mm")
 });
 
 export function pollValidation(req, res, next) {

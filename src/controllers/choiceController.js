@@ -4,9 +4,9 @@ import dayjs from "dayjs";
 
 const db = await mongo();
 
+const today = dayjs().format("YYYY-MM-D hh:mm");
 async function createChoice(req, res) {
   const { title, pollId } = req.body;
-  const today = dayjs().format("YYYY-MM-D hh:mm");
     const createdChoice = {
     title,
     pollId: new ObjectId(pollId),
@@ -44,12 +44,23 @@ async function createChoice(req, res) {
 
 async function addVote (req, res) {
   const { id } = req.params;
-
+  const choiceId = { _id: ObjectId(id)}
   try {
-      const insertVote = await db.collection("choices").updateOne({_id: ObjectId(id)}, {$inc: { votes: 1}, $currentDate: { lastModified: true}} );
-      return res.send(insertVote);
+     const findId = await db.collection("choices").findOne(choiceId);
+     if(findId === null){
+      return res.sendStatus(404);
+    }
+    const pollId = findId.pollId;
+    const poll = await db.collection("polls").findOne({_id: pollId});
+        
+    if (today > poll.expireAt) {
+      return res.sendStatus(403);
+    }
+    const insertVote = await db.collection("choices").updateOne({_id: ObjectId(id)}, {$inc: { votes: 1}, $currentDate: { lastModified: true}} );
     
+    return res.status(201).send(insertVote);
     } catch (error) {
+      console.log(error)
       return res.sendStatus(500);
     }
 }
